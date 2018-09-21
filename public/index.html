@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Google Sign-In Demo</title>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="71542643149-sqe41nc0ggt7nhn22ouc4sfkai697kai.apps.googleusercontent.com">
+</head>
+
+<body>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <a href="#" onclick="signOut();">Sign out</a>
+    <script>
+        function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function() {
+                console.log('User signed out.');
+            });
+        }
+    </script>
+    <script>
+        function onSignIn(googleUser) { //paraciera que esta funcion se ejecuta en el oncomplete en la respuesta, checar ese data-onsuccess="onSignIn"
+            var profile = googleUser.getBasicProfile();
+            console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+            var id_token = googleUser.getAuthResponse().id_token;
+            console.log(id_token);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/google');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                console.log('Signed in as: ' + xhr.responseText);
+            };
+            xhr.send('idtoken=' + id_token); //esta propiedad y su valor será enviado cuando nos loguemos por google, mediante el metodo post
+        }
+    </script>
+
+    <!--para integrar google sigin de google 
+    https://developers.google.com/identity/sign-in/web/sign-in
+
+    configuramos un projecto,
+    integramos el script de
+
+    https://developers.google.com/identity/sign-in/web/sign-in,
+    ponemos el meta +<meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+    agregamos el boton <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+    copiamos el script para Get profile information
+function onSignIn(googleUser) {
+  var profile = googleUser.getBasicProfile();
+  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+  console.log('Name: ' + profile.getName());
+  console.log('Image URL: ' + profile.getImageUrl());
+  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+}
+
+tambien el codigo de sign out 
+
+<a href="#" onclick="signOut();">Sign out</a>
+<script>
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+</script>
+
+hacemos algunas configuraciones y asi obtenemos el client ID como este
+
+71542643149-sqe41nc0ggt7nhn22ouc4sfkai697kai.apps.googleusercontent.co
+
+en Configure your OAuth client agregamos web browser 
+
+despues vamos a articulo Authenticate with a backend server y copiamos y pegamos en la funcion signIn
+ var id_token = googleUser.getAuthResponse().id_token;
+ 
+ con ello vamos a obtener un token, cada vez que nos logueemos y este token lo vamos a mandar al backend, el  backend lo va validar con una libreria de google
+y si eso es valido se va crear el usuario
+
+despues enb¿viamos el id token al server con un https post request, que en lo cal seria http con este codigo en la misma funcion de sign in
+
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'https://yourbackend.example.com/tokensignin');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+  console.log('Signed in as: ' + xhr.responseText);
+};
+xhr.send('idtoken=' + id_token);
+
+
+e instalamos npm install google-auth-library --save para instalar la libreria que va hacer la validacion
+    -->
+
+
+</body>
+
+</html>
