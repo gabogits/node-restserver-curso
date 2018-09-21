@@ -5,21 +5,29 @@ const bcrypt = require('bcrypt');
 
 const _ = require("underscore"); //undercore entre el monton de funcionalidades se encuentra pick, regresa una copia del objeto, filtrando solo los valores, que yo quiero, 
 
-
+const { verificaToken, verificaAdmin_Role } = require('../middlewares/autenticacion'); //podemos importar asi solo la funcion o podriamos importar todo el archivo
+// require('../middlewares/autenticacion'); esta es la otra forma
 const app = express();
 
 app.get('/', (req, res) => {
     res.json('hola mundo');
 })
 
-
-app.get('/usuario', (req, res) => {
-
+7
+app.get('/usuario', verificaToken, (req, res) => {
+    /*
+    return res.json({ //aqui obtenemos la informacion del usuario, que paso por la verificacion del token, 
+        //este info la pasa el midleware verificaToken y corresponde al usuario logueado en este momento
+        usuario: req.usuario,
+        nombre: req.usuario.nombre,
+        email: req.usuario.email,
+    })
+    */
     let desde = req.query.desde || 0;
     desde = Number(desde); //desde lo vamos vamos a obtener de la url (/usuario?desde=10) -si hay un parametro desde en la url toma ese valor, si no por default tiene 0
     //lo que quiere decir que mostrará apartir del primer registro de a base de datos (0)
 
-    let limite = req.query.limite || 12; //de igual forma el limite lo puede obtener de la url, aunque tambien lo podemos especificar en el metodo
+    let limite = req.query.limite || 20; //de igual forma el limite lo puede obtener de la url, aunque tambien lo podemos especificar en el metodo
     limite = Number(limite);
 
     let status = req.query.estado || true; //de igual forma el limite lo puede obtener de la url, aunque tambien lo podemos especificar en el metodo
@@ -63,7 +71,7 @@ bcrypt :hash de una sola vía, que aunque alguien obtenga toda la cadena de cara
 */
 
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificaToken, verificaAdmin_Role], (req, res) => { //asi se manda dos midlewares [verificaToken, verificaAdmin_Role]
 
     let body = req.body; // cuando se envie informacion de peticiones el body-parser va procesarlo, como un formulario
 
@@ -110,7 +118,7 @@ app.post('/usuario', (req, res) => {
 
 })
 
-app.put('/usuario/:id', (req, res) => { //:id esta indicacion, con los dos puntos significa que seguir despues del usuario/ cualquier cosa, el id es un nombre aleatorio
+app.put('/usuario/:id', [verificaToken, verificaAdmin_Role], (req, res) => { //:id esta indicacion, con los dos puntos significa que seguir despues del usuario/ cualquier cosa, el id es un nombre aleatorio
     //el :id es el nombreuna variable que  tiene que machar con el nombre de la propiedad id del req.params.id; 
     //o sea que si en la ruta especificamos app.put('/usuario/:loquesea', en el request params debe ser  req.params.loquesea; 
     let id = req.params.id;
@@ -123,7 +131,7 @@ app.put('/usuario/:id', (req, res) => { //:id esta indicacion, con los dos punto
     //delete body.google
 
     //otra forma de hacerlo Usuario.findById (id,  (err, usuarioDB) => { //usando el modelo buscamos un usuario
-    Usuario.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, usuarioDB) => { //aqui busca por el id y lo actualiza si lo encuentra
+    Usuario.findByIdAndUpdate(id, body, { new: true }, (err, usuarioDB) => { //aqui busca por el id y lo actualiza si lo encuentra
         //este metodo, usa el id, lo que queremos actualizar y un callback, el cual va recibir un error o un usuario de  base de datos
         if (err) {
             return res.status(400).json({
@@ -145,7 +153,7 @@ app.put('/usuario/:id', (req, res) => { //:id esta indicacion, con los dos punto
 
 
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', [verificaToken, verificaAdmin_Role], (req, res) => {
 
 
 
