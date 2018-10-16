@@ -94,7 +94,7 @@ app.post('/google', async(req, res) => { //pero para poder usar un await se tien
 
             });
         })
-        //si pasa el catch nos regresa el objeto de google con cierta info del usuario
+
 
     /*
         res.json({ //si todo funciona bien va regresar el objeto personalizado de google

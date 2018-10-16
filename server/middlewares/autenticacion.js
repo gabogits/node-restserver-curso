@@ -18,7 +18,7 @@ let verificaToken = (req, res, next) => {
             })
         }
         req.usuario = decoded.usuario; //este es token del usuario que esta logueado en eeste momento decodificado
-        // console.log('token', token); //asi obtenemos el token, para posteriormente 
+        console.log('token', token); //asi obtenemos el token, para posteriormente 
         next(); //cuando haya obtenido esta parte pueda continuar con el codigo de la ruta /usuario app.get('/usuario', verificaToken, (req, res) => {
     })
 };
